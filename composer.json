@@ -1,0 +1,13 @@
+{
+    "name": "goha/pure-php-crud",
+    "type": "projtect",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        },
+        "files": [
+            "src/Config/config.php"
+        ]
+    },
+    "require": {}
+}
