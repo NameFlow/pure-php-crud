@@ -1,15 +1,5 @@
 <?php
 
-/* 
-
-1. Зависимость от $_SERVER, в тестах его нет. 
-Р: передавать в конструктор http-метод
-
-2. Заменить возвращаемые данные на Response объект
-
-*/
-
-
 declare(strict_types=1);
 
 namespace App\Routing;
@@ -169,7 +159,7 @@ class Router
 
     private function formatUri(string $uri)
     {
-        return explode(' ', trim(str_replace('/', ' ', $uri)));
+        return explode('/', trim($uri, "/"));
     }
 
     private function handleControllerResponse(Response | View $controllerResponse) {
@@ -182,5 +172,5 @@ class Router
     }
 }
 
-$router = new Router($_SERVER['PATH_INFO'] ?? '/', $_SERVER['REQUEST_METHOD']);
+$router = new Router($_SERVER['PATH_INFO'] ?? '/', 'get');
 $router->handleUri();
