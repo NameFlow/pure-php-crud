@@ -76,26 +76,24 @@ class Container
     {
         $binding = $this->bindings[$className] ?? null;
 
-        if (empty($binding)) {
-            throw new InvalidArgumentException('Not binded Class');
-        }
-        
-        if ($binding->shared === false) {
-            $closure = $binding->closure;
-            return $closure();
+        if ($binding === null) {
+            // saying what class is not found by var
+            throw new InvalidArgumentException("Not found '{$className}' in bindings");
         }
 
-        $isInSharedIstances = isset($this->sharedInstances[$className]);
-
-        if ($isInSharedIstances) {
+        $isCashed = isset($this->sharedInstances[$className]);
+        if ($isCashed) {
             return $this->sharedInstances[$className];
-        }
+        } 
 
         $closure = $binding->closure;
         $instance = $closure();
+        
+        $isShared = $binding->shared === true;
+        if ($isShared) {
+            $this->sharedInstances[$className] = $instance;
+        }
 
-        $this->sharedInstances[$className] = $instance;
         return $instance;
     }
 }
-
