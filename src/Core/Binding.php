@@ -6,7 +6,7 @@ namespace App\Core;
 
 use Closure;
 
-class Binding
+final class Binding
 {
     public function __construct(
         public readonly Closure $closure,

@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Routing;
 
 use App\Controllers\Controller;
+use App\Core\Container;
 use App\Views\View;
 use Exception;
 use InvalidArgumentException;
-
-require_once __DIR__ . '/../../vendor/autoload.php';
 
 class Router
 {
@@ -17,10 +16,13 @@ class Router
     private string $httpMethod;
     private array $routes;
     private int $httpResponseCode;
+    private Container $container;
 
-    public function __construct(string $requestUri, string $httpMethod)
+    public function __construct(string $requestUri, string $httpMethod, Container $container)
     {
         $this->requestUri = $requestUri;
+        $this->container = $container;
+
         $this->httpMethod = trim(strtolower($httpMethod));
         $this->routes = Routes::getAllRoutes();
 
@@ -55,9 +57,9 @@ class Router
             // If request uri IS matches with route uri
             if ($match['success'] === true) {
                 $controllerClassName = $route['controller'];
-                $controller = new $controllerClassName();
-                $controllerMethod = $route['controllerMethod'];
+                $controller = $this->container->get($controllerClassName);
                 
+                $controllerMethod = $route['controllerMethod'];
                 
                 if ($controller instanceof Controller) {
                     $args = $match['params'];
@@ -73,8 +75,7 @@ class Router
         }
 
         // If request uri NOT matches with route uri
-        $view = new View('404');
-        $response = new Response(404, $view);
+        $response = $this->makeResponse404();
 
         return $response;
     }
@@ -164,13 +165,26 @@ class Router
 
     private function handleControllerResponse(Response | View $controllerResponse) {
         if ($controllerResponse instanceof Response) {
+            $responseCode = $controllerResponse->httpResponseCode;
+
+            if ($responseCode === 404) {
+                $view = $controllerResponse->view;
+                
+                return $this->makeResponse404($view);
+            } 
+
             return $controllerResponse;
         } elseif ($controllerResponse instanceof View) {
             $httpResponseCode = $this->httpResponseCode;
+
             return new Response($httpResponseCode, $controllerResponse);
         } 
     }
-}
 
-$router = new Router($_SERVER['PATH_INFO'] ?? '/', 'get');
-$router->handleUri();
+    private function makeResponse404(null | View $view = null) {
+        if ($view === null) {
+            $view = new View('404');
+        }
+        return new Response(404, $view);
+    }
+}

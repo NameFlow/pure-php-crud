@@ -6,7 +6,7 @@ namespace App\Routing;
 
 use App\Controllers\ProductController;
 
-class Routes
+final class Routes
 {
     private static array $GET = [
         ['/products', ProductController::class, 'index'],

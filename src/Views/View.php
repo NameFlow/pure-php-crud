@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Views;
 
-class View
+final class View
 {
     private string $view;
 

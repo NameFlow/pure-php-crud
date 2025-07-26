@@ -75,7 +75,7 @@ class Container
     public function get(string $className)
     {
         $binding = $this->bindings[$className] ?? null;
-
+        
         if ($binding === null) {
             // saying what class is not found by var
             throw new InvalidArgumentException("Not found '{$className}' in bindings");
@@ -87,7 +87,7 @@ class Container
         } 
 
         $closure = $binding->closure;
-        $instance = $closure();
+        $instance = $closure(); 
         
         $isShared = $binding->shared === true;
         if ($isShared) {

@@ -2,32 +2,33 @@
 
 declare(strict_types=1);
 
+// Front Controller
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Router\Router;
+use App\Controllers\ProductController;
+use App\Core\Container;
+use App\Routing\Router;
 
-$router = new Router();
+$requestUri = $_SERVER['REQUEST_URI' ?? '/'];
+$requestMethod = $_SERVER['REQUEST_METHOD'];
 
-$router->handleUri();
+$container = new Container();
 
-var_dump($_SERVER['PATH_INFO']);
-// if ($_SERVER['PATH_INFO'])
+$container->bind(ProductController::class, function () {
+    return new ProductController();
+});
+
+$router = new Router($requestUri, $requestMethod, $container);
+
+$response = $router->handleUri();
+$responseCode = $response->httpResponseCode;
+$responseView = $response->view;
+
+http_response_code($responseCode);
+if ($responseView !== null) {
+    echo $responseView->getView();
+}
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pure php CRUD</title>
-</head>
-<body>
-<main>
-    <h1>
-        Добро пожаловать в CRUD на чистом PHP!
-    </h1>
 
-    <?= 'negri' ?>
-</main>
-</body>
-</html>
